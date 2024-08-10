@@ -36,3 +36,20 @@
     transform: rotate(360deg);
   }
 }
+
+.css-md26zr-MuiInputBase-root-MuiOutlinedInput-root {
+  font-family: 'Raleway' !important;
+}
+
+.css-46bh2p-MuiCardContent-root {
+  padding: 8px !important;
+}
+
+.css-cpk47q-MuiGrid-root>.MuiGrid-item {
+  align-content: center;
+}
+
+.css-1t8l2tu-MuiInputBase-input-MuiOutlinedInput-input {
+  padding-right: 8px !important;
+  padding-left: 8px !important;
+}
