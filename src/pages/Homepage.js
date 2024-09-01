@@ -8,6 +8,7 @@ import SelectButton from '../components/selectButton';
 import SelectQuantity from '../components/selectQuantity';
 import SubmitButton from '../components/submitButton';
 import EarthImage from '../assets/love earth.png';
+import { fetchHomeData } from '../config/api'
 
 const defaultTheme = createTheme();
 
@@ -19,8 +20,12 @@ export default function Homepage() {
     const [quantity, setQuantity] = useState(1); // Tambahkan state untuk quantity
     const [price, setPrice] = useState(0); // Tambahkan state untuk price
     const [isButtonEnabled, setIsButtonEnabled] = useState(false);
+    const [homeData, setHomeData] = useState(null); // State untuk data dari API
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState('');
 
     useEffect(() => {
+
         const storedPhoneNumber = localStorage.getItem('phoneNumber');
         if (storedPhoneNumber) {
             setPhoneNumber(storedPhoneNumber);
@@ -36,7 +41,24 @@ export default function Homepage() {
             setSelectedWater(storedSelectedWater);
         }
 
-    }, []);
+        // Ambil data dari API saat komponen dimuat
+        const token = localStorage.getItem('accessToken');
+        if (!token) {
+            navigate('/');
+        } else {
+            fetchHomeData()
+                .then((data) => {
+                    setHomeData(data);
+                })
+                .catch((error) => {
+                    console.error('Error fetching home data:', error);
+                    setError('Failed to fetch data. Please try again.');
+                })
+                .finally(() => {
+                    setLoading(false);
+                });
+        }
+}, []);
 
     useEffect(() => {
         // Update price based on quantity
@@ -72,7 +94,7 @@ export default function Homepage() {
             quantity: quantity,
             price: price,
         });
-        navigate('/pay');
+        navigate('/webapp/pay');
     };
 
     return (
@@ -128,7 +150,7 @@ export default function Homepage() {
                                 </Grid>
                                 <Grid item xs={9}>
                                     <Typography variant="body1" sx={{ fontSize: '13px', fontFamily: 'Raleway' }}>
-                                        Kamu sudah berkontribusi mengurangi <b>50</b> sampah plastik dan <b>0.25</b> kg emisi karbon!
+                                        Kamu sudah berkontribusi mengurangi <b>{homeData?.data?.carbon_emissions?.plastic}</b> sampah plastik dan <b>{homeData?.data?.carbon_emissions?.carbon_emission}</b> g emisi karbon!
                                     </Typography>
                                 </Grid>
                             </Grid>

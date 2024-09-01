@@ -11,6 +11,7 @@ import Linkaja from '../assets/linkaja.png';
 import Shopeepay from '../assets/shopee.png';
 import Dana from '../assets/dana.png';
 import Va from '../assets/va.png';
+import {postWithAuthToken, registerUser} from '../config/api'
 
 const theme = createTheme();
 
@@ -69,17 +70,44 @@ export default function Pay() {
         setSelectedValue(event.target.value);
     };
 
-    const handleSubmit = (event) => {
+    // const handleSubmit = (event) => {
+    //     event.preventDefault();
+    //     console.log({
+    //         phone_number: phoneNumber,
+    //         water_id: selectedWaterId,
+    //         water: selectedWater,
+    //         volume: quantity,
+    //         amount: price,
+    //         payment_method_id: selectedValue
+    //     });
+    //     navigate('/');
+    // };
+
+    const handleSubmit = async (event) => {
         event.preventDefault();
-        console.log({
-            phone: phoneNumber,
-            water_id: selectedWaterId,
-            water: selectedWater,
-            quantity: quantity,
-            price: price,
-            pay: selectedValue
-        });
-        navigate('/');
+
+        try {
+            const storedUser = localStorage.getItem('user');
+            const user = storedUser ? JSON.parse(storedUser) : null;
+
+            if (!user || user.phone_number !== phoneNumber) {
+                const response = await registerUser(phoneNumber);
+                localStorage.setItem('user', JSON.stringify(response.data.data.user));
+            }
+
+            await postWithAuthToken('webapp/checkout', {
+                phone_number: phoneNumber,
+                save_phone_number: phoneNumber,
+                volume: quantity,
+                amount: price,
+                currency: price,
+                payment_method_id: selectedValue
+            });
+
+            navigate('/');
+        } catch (error) {
+            console.error('Error during handleSubmit:', error.message);
+        }
     };
 
     return (

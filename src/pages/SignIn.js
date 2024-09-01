@@ -6,6 +6,7 @@ import { createTheme, ThemeProvider } from '@mui/material/styles';
 import Navbar from '../components/Navbar';
 import SubmitButton from '../components/submitButton';
 import cupImage from '../assets/cup.png';
+import { registerUser } from '../config/api'
 
 
 const defaultTheme = createTheme();
@@ -31,16 +32,28 @@ export default function SignIn() {
     //     navigate('/homepage');
     // };
 
-    const handleSubmit = (event) => {
+    const handleSubmit = async (event) => {
         event.preventDefault();
         const data = new FormData(event.currentTarget);
         const phone = data.get('phone');
         console.log({ phone });
-        
-        // Simpan nomor telepon ke localStorage
-        localStorage.setItem('phoneNumber', phone);
-    
-        navigate('/homepage');
+
+        try {
+            const result = await registerUser(phone);
+            console.log('User registered:', result);
+            console.log('User registeredsss:', result.data.user);
+
+            // Simpan nomor telepon ke localStorage
+            localStorage.setItem('phoneNumber', phone);
+            const accessToken = result.data.authentication_tokens.access_token;
+            localStorage.setItem('accessToken', accessToken);
+
+            // console.log("Token before passing to setAuthToken:", accessToken)
+
+            navigate('/webapp/homepage');
+        } catch (error) {
+            console.error('Error registering user:', error);
+        }
     };
 
     return (
